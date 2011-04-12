@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{45AE67D2-3728-4293-9E91-A4E12DCE47BA}"
 	ProjectSection(SolutionItems) = preProject
+		License.txt = License.txt
 		Local.testsettings = Local.testsettings
+		README.markdown = README.markdown
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 		Wcf.vsmdi = Wcf.vsmdi
 	EndProjectSection

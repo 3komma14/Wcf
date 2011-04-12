@@ -51,14 +51,13 @@ namespace Seterlund.Wcf
         /// </returns>
         public static ChannelFactory<T> CreateChannelFactory<T>()
         {
-            ChannelFactory<T> channelFactory;
             ChannelEndpointElement channelEndpointElement;
             if (!TryGetClientEndpoint<T>(out channelEndpointElement))
             {
                 throw new InvalidOperationException("Unable to get client endpoint");
             }
             
-            channelFactory = new ChannelFactory<T>(channelEndpointElement.Name);
+            var channelFactory = new ChannelFactory<T>(channelEndpointElement.Name);
             if (channelFactory.IsFederated())
             {
                 channelFactory.ConfigureChannelFactory();
@@ -69,14 +68,13 @@ namespace Seterlund.Wcf
 
         public static ChannelFactory<TContract> CreateChannelFactory<TContract, TBinding>() where TBinding : Binding
         {
-            ChannelFactory<TContract> channelFactory;
             ChannelEndpointElement channelEndpointElement;
             if (!TryGetClientEndpoint<TContract, TBinding>(out channelEndpointElement))
             {
                 throw new InvalidOperationException("Unable to get client endpoint");
             }
 
-            channelFactory = new ChannelFactory<TContract>(channelEndpointElement.Name);
+            var channelFactory = new ChannelFactory<TContract>(channelEndpointElement.Name);
             if (channelFactory.IsFederated())
             {
                 channelFactory.ConfigureChannelFactory();

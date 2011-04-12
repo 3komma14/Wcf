@@ -66,10 +66,13 @@ namespace Seterlund.Wcf
         /// <param name="actAsToken">
         /// The act as token.
         /// </param>
+        /// <param name="onBehalfOf">
+        /// the on behalf of token
+        /// </param>
         /// <returns>
         /// the security token
         /// </returns>
-        public virtual SecurityToken IssueToken(IWSTrustChannelContract channel, string serviceAddress, SecurityToken actAsToken)
+        public virtual SecurityToken IssueToken(IWSTrustChannelContract channel, string serviceAddress, SecurityToken actAsToken = null, SecurityToken onBehalfOf = null)
         {
             var rst = new RequestSecurityToken(RequestTypes.Issue)
             {
@@ -78,6 +81,11 @@ namespace Seterlund.Wcf
             if (actAsToken != null)
             {
                 rst.ActAs = new SecurityTokenElement(actAsToken);
+            }
+
+            if (onBehalfOf != null)
+            {
+                rst.OnBehalfOf = new SecurityTokenElement(onBehalfOf);
             }
 
             RequestSecurityTokenResponse rstr;
