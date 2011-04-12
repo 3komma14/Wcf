@@ -18,8 +18,8 @@ Is that it?
 
 Of course no..
 
-	* If no endpoint is found for the contract (IService), an exception is thrown
-	* If more than one endpoint is found, an exception is throwm
-	* CreateChannel takes a bindingnam or bindingtype as an argument in the case you have more than one enpoint for the contract.
-	* If the service is a federated service, the securitytoken is cached so you can reuse it. Saves a roundtrip to the STS every time you are using the service.
+* If no endpoint is found for the contract (IService), an exception is thrown
+* If more than one endpoint is found, an exception is throwm
+* CreateChannel takes a bindingnam or bindingtype as an argument in the case you have more than one enpoint for the contract.
+* If the service is a federated service, the securitytoken is cached so you can reuse it. Saves a roundtrip to the STS every time you are using the service.
 
