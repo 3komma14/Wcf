@@ -2,15 +2,15 @@
 using System.IdentityModel.Tokens;
 using System.ServiceModel;
 using Microsoft.IdentityModel.Protocols.WSTrust;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Rhino.Mocks;
 
 namespace Seterlund.Wcf.UnitTests
 {
-    [TestClass]
+    [TestFixture]
     public class SecurityTokenProviderTests
     {
-        [TestMethod]
+        [Test]
         public void IssueToken_CalledOnContract_CallsChannelIssue()
         {
             // Arrange
@@ -25,7 +25,7 @@ namespace Seterlund.Wcf.UnitTests
             channelContract.AssertWasCalled(x => x.Issue(Arg<RequestSecurityToken>.Is.Anything, out Arg<RequestSecurityTokenResponse>.Out(null).Dummy));
         }
 
-        [TestMethod]
+        [Test]
         public void IssueToken_WS2007HttpBindingIsNotSet_Throws()
         {
             // Arrange
@@ -35,19 +35,18 @@ namespace Seterlund.Wcf.UnitTests
 
             // Act
             // Assert
-            ExceptionAssert.Throws<ApplicationException>(
-                () => securityTokenProvider.IssueToken(binding, "http://localhost/service", actAsToken),
-                ex => Assert.AreEqual("Unable to get WS2007HttpBinding", ex.Message));
+            var ex = Assert.Throws<ApplicationException>(() => securityTokenProvider.IssueToken(binding, "http://localhost/service", actAsToken));
+            Assert.AreEqual("Unable to get WS2007HttpBinding", ex.Message);
         }
 
-        [TestMethod]
+        [Test]
         public void IssueToken_CalledOnFederationBinding_CallsIssueToken()
         {
             // Arrange
             var returnToken = MockRepository.GenerateStub<SecurityToken>();
             var mockRepository = new MockRepository();
             var securityTokenProvider = mockRepository.PartialMock<SecurityTokenProvider>();
-            securityTokenProvider.Stub(x => x.IssueToken(Arg<IWSTrustChannelContract>.Is.Anything, Arg<string>.Is.Anything, Arg<SecurityToken>.Is.Anything)).Return(returnToken);
+            securityTokenProvider.Stub(x => x.IssueToken(Arg<IWSTrustChannelContract>.Is.Anything, Arg<string>.Is.Anything, Arg<SecurityToken>.Is.Anything, Arg<SecurityToken>.Is.Anything)).Return(returnToken);
             securityTokenProvider.Replay();
 
             var binding = MockRepository.GenerateStub<WS2007FederationHttpBinding>();
@@ -64,11 +63,11 @@ namespace Seterlund.Wcf.UnitTests
 
             // Assert
             securityTokenProvider.AssertWasCalled(
-                x => x.IssueToken(Arg<IWSTrustChannelContract>.Is.Anything, Arg<string>.Is.Anything, Arg<SecurityToken>.Is.Anything));
+                x => x.IssueToken(Arg<IWSTrustChannelContract>.Is.Anything, Arg<string>.Is.Anything, Arg<SecurityToken>.Is.Anything, Arg<SecurityToken>.Is.Anything));
             Assert.AreEqual(returnToken, actual);
         }
 
-        [TestMethod]
+        [Test]
         public void CreateChannel_WhenCalled_ReturnsChannel()
         {
             // Arrange

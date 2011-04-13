@@ -21,11 +21,6 @@ namespace Seterlund.Wcf
         private const string ConfigSectionSystemServiceModelClient = "system.serviceModel/client";
 
         /// <summary>
-        /// Used for testing purposes only
-        /// </summary>
-        private static object _channelToReturnInTests;
-
-        /// <summary>
         /// Initializes static members of the <see cref="ChannelFactoryManager"/> class.
         /// </summary>
         static ChannelFactoryManager()
@@ -38,43 +33,61 @@ namespace Seterlund.Wcf
         /// </summary>
         public static Dictionary<Type, ChannelFactory> ChannelFactories { get; private set; }
 
+        #region IChannelFactoryManager Members
+
+        public ChannelFactory<T> GetFactory<T>()
+        {
+            return GetChannelFactory<T>();
+        }
+
+        public ChannelFactory<T> GetFactory<T>(ClientCredentials clientCredentials)
+        {
+            return GetChannelFactory<T>(clientCredentials);
+        }
+
+        public ChannelFactory<T> GetFactory<T, TBinding>() where TBinding : Binding
+        {
+            return GetChannelFactory<T, TBinding>();
+        }
+
+        #endregion
+
         /// <summary>
         /// Creates a channel factory for the given interface/type.
         /// It first reads the system.serviceModel/client section to find a single endpoint matching the contract.
         /// If none or multiple entries found it uses the ChannelFactoryManager section to select the correct one.
         /// </summary>
-        /// <typeparam name="T">
+        /// <typeparam name="TContract">
         /// Interface or type
         /// </typeparam>
         /// <returns>
         /// A ChannelFactory
         /// </returns>
-        public static ChannelFactory<T> CreateChannelFactory<T>()
+        public static ChannelFactory<TContract> CreateChannelFactory<TContract>()
         {
-            ChannelEndpointElement channelEndpointElement;
-            if (!TryGetClientEndpoint<T>(out channelEndpointElement))
+            var channelEndpointElement = GetClientEndpoint<TContract>();
+            if (channelEndpointElement == null)
             {
                 throw new InvalidOperationException("Unable to get client endpoint");
             }
-            
-            var channelFactory = new ChannelFactory<T>(channelEndpointElement.Name);
-            if (channelFactory.IsFederated())
-            {
-                channelFactory.ConfigureChannelFactory();
-            }
 
-            return channelFactory;
+            return CreateChannelFactory<TContract>(channelEndpointElement.Name);
         }
 
         public static ChannelFactory<TContract> CreateChannelFactory<TContract, TBinding>() where TBinding : Binding
         {
-            ChannelEndpointElement channelEndpointElement;
-            if (!TryGetClientEndpoint<TContract, TBinding>(out channelEndpointElement))
+            var channelEndpointElement = GetClientEndpoint<TContract, TBinding>();
+            if (channelEndpointElement == null)
             {
                 throw new InvalidOperationException("Unable to get client endpoint");
             }
 
-            var channelFactory = new ChannelFactory<TContract>(channelEndpointElement.Name);
+            return CreateChannelFactory<TContract>(channelEndpointElement.Name);
+        }
+
+        public static ChannelFactory<TContract> CreateChannelFactory<TContract>(string endpointConfigurationName)
+        {
+            var channelFactory = new ChannelFactory<TContract>(endpointConfigurationName);
             if (channelFactory.IsFederated())
             {
                 channelFactory.ConfigureChannelFactory();
@@ -95,7 +108,7 @@ namespace Seterlund.Wcf
         /// </returns>
         public static ChannelFactory<T> GetChannelFactory<T>()
         {
-            var key = typeof(T);
+            Type key = typeof (T);
             ChannelFactory channelFactory;
             if (!ChannelFactories.TryGetValue(key, out channelFactory))
             {
@@ -108,132 +121,59 @@ namespace Seterlund.Wcf
 
         private ChannelFactory<T> GetChannelFactory<T>(ClientCredentials clientCredentials)
         {
-            var channelFactory = CreateChannelFactory<T>();
+            ChannelFactory<T> channelFactory = CreateChannelFactory<T>();
             channelFactory.SetClientCredentials(clientCredentials);
             return channelFactory;
         }
 
         private ChannelFactory<T> GetChannelFactory<T, TBinding>() where TBinding : Binding
         {
-            var channelFactory = CreateChannelFactory<T, TBinding>();
+            ChannelFactory<T> channelFactory = CreateChannelFactory<T, TBinding>();
             return channelFactory;
         }
 
-        public ChannelFactory<T> GetFactory<T>()
-        {
-            return GetChannelFactory<T>();
-        }
-
-        public ChannelFactory<T> GetFactory<T>(ClientCredentials clientCredentials)
-        {
-            return GetChannelFactory<T>(clientCredentials);
-        }
-
-        public ChannelFactory<T> GetFactory<T, TBinding>() where TBinding : Binding
-        {
-            return GetChannelFactory<T, TBinding>();
-        }
-
-
         /// <summary>
-        /// Returns the channelfactory. If a mock channel is set then this is returned
-        /// </summary>
-        /// <param name="endpointConfigurationName">
-        /// The endpoint configuration name.
-        /// </param>
-        /// <typeparam name="T">
-        /// Type of the channelfactory
-        /// </typeparam>
-        /// <returns>
-        /// A channelfactory
-        /// </returns>
-        protected static ChannelFactory<T> CreateChannelFactory<T>(string endpointConfigurationName)
-        {
-            if (_channelToReturnInTests != null)
-            {
-                return (ChannelFactory<T>)_channelToReturnInTests;
-            }
-
-            return new ChannelFactory<T>(endpointConfigurationName);
-        }
-
-        /// <summary>
-        /// Sets a channelfactory to return in tests
-        /// </summary>
-        /// <param name="channel">
-        /// The channel.
-        /// </param>
-        /// <typeparam name="T">
-        /// The type of the channel
-        /// </typeparam>
-        protected static void SetChannelToReturn<T>(ChannelFactory<T> channel)
-        {
-            _channelToReturnInTests = channel;
-        }
-
-        /// <summary>
-        /// Try to get the client endpoint from the ServiceModel section in app.config/web.config
+        /// Get the client endpoint from the ServiceModel section in app.config/web.config
         /// Looks for a contract that matches the type T
         /// </summary>
-        /// <param name="channelEndpointElement">
-        /// The channel endpoint element found
-        /// </param>
-        /// <typeparam name="T">
-        /// The contract to look for
-        /// </typeparam>
-        /// <returns>
-        /// true if one (and only one) contract is found, else false
-        /// </returns>
-        /// <exception cref="ApplicationException">
+        /// <typeparam name="TContract">The contract to look for</typeparam>
+        /// <returns>A ChannelEndpointElement if found, else null</returns>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if no section is found in the config file
         /// </exception>
-        private static bool TryGetClientEndpoint<T>(out ChannelEndpointElement channelEndpointElement)
+        private static ChannelEndpointElement GetClientEndpoint<TContract>()
         {
-            channelEndpointElement = null;
-            var clientSection = ConfigurationManager.GetSection(ConfigSectionSystemServiceModelClient) as ClientSection;
-            if (clientSection == null)
-            {
-                throw new InvalidOperationException(string.Format("Section {0} not found.", ConfigSectionSystemServiceModelClient));
-            }
+            ChannelEndpointElement channelEndpointElement = null;
+            ClientSection clientSection = GetClientSection();
 
-            var endpoints = clientSection.Endpoints.Cast<ChannelEndpointElement>().Where(x => x.Contract == typeof(T).FullName).ToList();
+            List<ChannelEndpointElement> endpoints =
+                clientSection.Endpoints.Cast<ChannelEndpointElement>().Where(
+                    x => x.Contract == typeof (TContract).FullName).ToList();
             if (endpoints.Count() == 1)
             {
                 channelEndpointElement = endpoints[0];
             }
 
-            return channelEndpointElement == null ? false : true;
+            return channelEndpointElement;
         }
 
         /// <summary>
-        /// Try to get the client endpoint from the ServiceModel section in app.config/web.config
-        /// Looks for a contract that matches the type TContract and binding TBinding
+        /// Get the client endpoint from the ServiceModel section in app.config/web.config
+        /// Looks for a contract that matches the type T
         /// </summary>
-        /// <param name="channelEndpointElement">
-        /// The channel endpoint element found
-        /// </param>
-        /// <typeparam name="TContract">
-        /// The contract to look for
-        /// </typeparam>
-        /// <typeparam name="TBinding">
-        /// The binding to look for
-        /// </typeparam>
-        /// <returns>
-        /// true if one (and only one) contract is found, else false
-        /// </returns>
-        /// <exception cref="ApplicationException">
+        /// <typeparam name="TContract">The contract to look for</typeparam>
+        /// <typeparam name="TBinding">The binding to look for</typeparam>
+        /// <returns>A ChannelEndpointElement if found, else null</returns>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if no section is found in the config file
         /// </exception>
-        private static bool TryGetClientEndpoint<TContract, TBinding>(out ChannelEndpointElement channelEndpointElement)
-            where TBinding : Binding
+        private static ChannelEndpointElement GetClientEndpoint<TContract, TBinding>() where TBinding : Binding
         {
-            channelEndpointElement = null;
-            var clientSection = ConfigurationManager.GetSection(ConfigSectionSystemServiceModelClient) as ClientSection;
-            if (clientSection == null)
-            {
-                throw new InvalidOperationException(string.Format("Section {0} not found.", ConfigSectionSystemServiceModelClient));
-            }
+            ChannelEndpointElement channelEndpointElement = null;
+            ClientSection clientSection = GetClientSection();
 
-            var endpoints = clientSection.Endpoints.Cast<ChannelEndpointElement>()
-                .Where(x => x.Contract == typeof(TContract).FullName)
+            List<ChannelEndpointElement> endpoints = clientSection.Endpoints.Cast<ChannelEndpointElement>()
+                .Where(x => x.Contract == typeof (TContract).FullName)
                 .Where(x => IsBindingMatches<TBinding>(x.Binding))
                 .ToList();
             if (endpoints.Count() == 1)
@@ -241,7 +181,24 @@ namespace Seterlund.Wcf
                 channelEndpointElement = endpoints[0];
             }
 
-            return channelEndpointElement == null ? false : true;
+            return channelEndpointElement;
+        }
+
+        /// <summary>
+        /// Gets the client section from the config file
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if the section is not found
+        /// </exception>
+        /// <returns>The section</returns>
+        private static ClientSection GetClientSection()
+        {
+            var clientSection = ConfigurationManager.GetSection(ConfigSectionSystemServiceModelClient) as ClientSection;
+            if (clientSection == null)
+            {
+                throw new InvalidOperationException(string.Format("Section {0} not found.", ConfigSectionSystemServiceModelClient));
+            }
+            return clientSection;
         }
 
         /// <summary>
@@ -258,8 +215,7 @@ namespace Seterlund.Wcf
         /// </returns>
         private static bool IsBindingMatches<TBinding>(string bindingName)
         {
-            return string.Compare(typeof(TBinding).Name, bindingName, true) == 0;
+            return string.Compare(typeof (TBinding).Name, bindingName, true) == 0;
         }
-
     }
 }
