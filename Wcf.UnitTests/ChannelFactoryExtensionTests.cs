@@ -3,6 +3,7 @@ using System.ServiceModel.Description;
 using Microsoft.IdentityModel.Protocols.WSTrust;
 using Seterlund.Wcf.Core;
 using NUnit.Framework;
+using Seterlund.Wcf.WIF;
 
 namespace Seterlund.Wcf.UnitTests
 {

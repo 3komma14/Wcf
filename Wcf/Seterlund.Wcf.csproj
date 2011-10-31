@@ -55,7 +55,9 @@
     <Compile Include="Client\ChannelFactoryManager.cs" />
     <Compile Include="Client\ClientManager.cs" />
     <Compile Include="Client\IChannelFactoryManager.cs" />
+    <Compile Include="Core\ServiceHostExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WIF\ChannelFactoryExtensions.cs" />
     <Compile Include="WIF\SecurityTokenProvider.cs" />
     <Compile Include="Server\StructureMap\HybridInstanceContextLifecycle.cs" />
     <Compile Include="Server\StructureMap\InstanceContextLifecycle.cs" />
