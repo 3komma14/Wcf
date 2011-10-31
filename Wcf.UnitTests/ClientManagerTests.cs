@@ -6,7 +6,7 @@ using System.Security.Principal;
 using System.ServiceModel;
 using System.Threading;
 using Microsoft.IdentityModel.Protocols.WSTrust;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Rhino.Mocks;
 using Seterlund.Wcf.Client;
 using Seterlund.Wcf.WIF;
@@ -14,24 +14,56 @@ using Seterlund.Wcf.WIF;
 namespace Seterlund.Wcf.UnitTests
 {
 
-    [TestClass]
+    [TestFixture]
     public class ClientManagerTests
     {
         private MemoryCache TestCache;
 
-        [TestInitialize]
-        public void InitializeTest()
+        #region ----- Fixture setup -----
+
+        /// <summary>
+        /// Called once before first test is executed
+        /// </summary>
+        [TestFixtureSetUp]
+        public void Init()
+        {
+            // Init tests
+        }
+
+        /// <summary>
+        /// Called once after last test is executed
+        /// </summary>
+        [TestFixtureTearDown]
+        public void Cleanup()
+        {
+            // Cleanup tests
+        }
+
+        #endregion
+
+        #region ------ Test setup -----
+
+        /// <summary>
+        /// Called before each test
+        /// </summary>
+        [SetUp]
+        public void Setup()
         {
             this.TestCache = new MemoryCache("ClientManagerTestCache");
         }
 
-        [TestCleanup]
-        public void CleanupTest()
+        /// <summary>
+        /// Called before each test
+        /// </summary>
+        [TearDown]
+        public void TearDown()
         {
             this.TestCache.Dispose();
         }
 
-        [TestMethod]
+        #endregion
+
+        [Test]
         public void CreateChannel_WhenCalled_ReturnsTheCorrectType()
         {
             // Arrange
@@ -49,7 +81,7 @@ namespace Seterlund.Wcf.UnitTests
             Assert.AreEqual(typeof(IService).Name, clientType.Name);
         }
 
-        [TestMethod]
+        [Test]
         public void CreateChannel_FederationBindingAndNoIdentity_Throws()
         {
             // Arrange
@@ -62,12 +94,11 @@ namespace Seterlund.Wcf.UnitTests
 
             // Act
             // Assert
-            ExceptionAssert.Throws<SecurityException>(
-                () => clientManager.CreateChannel<IService>(),
-                ex => Assert.AreEqual("Identity must be set", ex.Message));
+            var ex = Assert.Throws<SecurityException>(() => clientManager.CreateChannel<IService>());
+            Assert.AreEqual("Identity must be set", ex.Message);
         }
 
-        [TestMethod]
+        [Test]
         public void CreateChannel_FederationBinding_CallsIssueActAsToken()
         {
             // Arrange
@@ -89,16 +120,17 @@ namespace Seterlund.Wcf.UnitTests
             securityTokenProvider.AssertWasCalled(x => x.IssueToken(Arg<WS2007FederationHttpBinding>.Is.Anything, Arg<string>.Is.Anything, Arg<SecurityToken>.Is.Anything));
         }
 
-        [TestMethod]
+        [Test]
         public void GetSecurityToken_WhenTokenIsCached_ReturnsCachedToken()
         {
             // Arrange
             var channelFactory = new ChannelFactory<IService>(new WS2007FederationHttpBinding(), new EndpointAddress("http://localhost"));
+            channelFactory.ConfigureChannelFactory();
             var channelFactoryManager = StubChannelFactoryManager(channelFactory);
             var securityTokenProvider = MockRepository.GenerateStub<SecurityTokenProvider>();
-            var clientManager = new ClientManager_Accessor(this.TestCache, channelFactoryManager, securityTokenProvider);
-            var expected = StubSecurityToken();
-            this.TestCache.Add("SomeName_http://localhost/", expected, new DateTimeOffset(DateTime.Now.AddMinutes(1)));
+            var securityToken = StubSecurityToken();
+            this.TestCache.Add("SomeName_http://localhost/", securityToken, new DateTimeOffset(DateTime.Now.AddMinutes(1)));
+            var clientManager = new TestableClientManager(this.TestCache, channelFactoryManager, securityTokenProvider);
 
             Thread.CurrentPrincipal = StubPrincipal<IPrincipal>(StubIdentity<IIdentity>("SomeName"));
 
@@ -106,10 +138,11 @@ namespace Seterlund.Wcf.UnitTests
             var actual = clientManager.GetSecurityToken(channelFactory);
 
             // Assert
-            Assert.AreEqual(expected, actual);
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(securityToken, actual);
         }
 
-        [TestMethod]
+        [Test]
         public void GetSecurityToken_WhenTokenIsNotCached_ReturnsCreatesTokenAndCachesIt()
         {
             // Arrange
@@ -120,7 +153,7 @@ namespace Seterlund.Wcf.UnitTests
             securityTokenProvider.Stub(
                 x =>
                 x.IssueToken(Arg<WS2007FederationHttpBinding>.Is.Anything, Arg<string>.Is.Anything, Arg<SecurityToken>.Is.Anything)).Return(expected);
-            var clientManager = MockRepository.GenerateStub<ClientManager_Accessor>(this.TestCache, channelFactoryManager, securityTokenProvider);
+            var clientManager = new TestableClientManager(this.TestCache, channelFactoryManager, securityTokenProvider);
 
             Thread.CurrentPrincipal = StubPrincipal<IPrincipal>(StubIdentity<IIdentity>("SomeName"));
 
@@ -132,7 +165,7 @@ namespace Seterlund.Wcf.UnitTests
             Assert.IsTrue(this.TestCache.Contains(@"SomeName_http://localhost/"));
         }
 
-        [TestMethod]
+        [Test]
         public void CreateFederatedChannel_WhenCalled_DoesNotThrow()
         {
             // Arrange
@@ -144,13 +177,13 @@ namespace Seterlund.Wcf.UnitTests
             securityTokenProvider.Stub(
                 x =>
                 x.IssueToken(Arg<WS2007FederationHttpBinding>.Is.Anything, Arg<string>.Is.Anything, Arg<SecurityToken>.Is.Anything)).Return(expected);
-            var clientManager = new ClientManager_Accessor(this.TestCache, channelFactoryManager, securityTokenProvider);
+            var clientManager = new TestableClientManager(this.TestCache, channelFactoryManager, securityTokenProvider);
 
             Thread.CurrentPrincipal = StubPrincipal<IPrincipal>(StubIdentity<IIdentity>("SomeName"));
 
             // Act
             // Assert
-            ExceptionAssert.DoesNotThrow(() => clientManager.CreateFederatedChannel<IFederatedService>(channelFactory));
+            Assert.DoesNotThrow(() => clientManager.CreateFederatedChannel<IFederatedService>(channelFactory));
         }
 
 
@@ -181,5 +214,23 @@ namespace Seterlund.Wcf.UnitTests
             identity.Stub(x => x.Name).Return(name);
             return identity;
         }
+
+        private class TestableClientManager : ClientManager
+        {
+            public TestableClientManager(ObjectCache cache, IChannelFactoryManager channelFactoryManager, SecurityTokenProvider securityTokenProvider) : base(cache, channelFactoryManager, securityTokenProvider)
+            {
+            }
+
+            public new SecurityToken GetSecurityToken<T>(ChannelFactory<T> channelFactory)
+            {
+                return base.GetSecurityToken<T>(channelFactory);
+            }
+
+            public new T CreateFederatedChannel<T>(ChannelFactory<T> channelFactory)
+            {
+                return base.CreateFederatedChannel<T>(channelFactory);
+            }
+        }
+
     }
 }

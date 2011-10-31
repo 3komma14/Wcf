@@ -25,6 +25,11 @@ namespace Seterlund.Wcf.Client
         private readonly ObjectCache _cache;
 
         /// <summary>
+        /// Object used for locking purposes
+        /// </summary>
+        private readonly object _cacheLock = new object();
+
+        /// <summary>
         /// Channel factory manager helps with the creation of channel factories
         /// </summary>
         private readonly IChannelFactoryManager _channelFactoryManager;
@@ -35,11 +40,6 @@ namespace Seterlund.Wcf.Client
         private readonly SecurityTokenProvider _securityTokenProvider;
 
         /// <summary>
-        /// Object used for locking purposes
-        /// </summary>
-        private readonly object _cacheLock = new object();
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ClientManager"/> class.
         /// </summary>
         /// <param name="cache">
@@ -48,11 +48,15 @@ namespace Seterlund.Wcf.Client
         /// <param name="channelFactoryManager">
         /// The channel factory manager.
         /// </param>
-        public ClientManager(ObjectCache cache, IChannelFactoryManager channelFactoryManager, SecurityTokenProvider securityTokenProvider)
+        /// <param name="securityTokenProvider">
+        /// The token provider
+        /// </param>
+        public ClientManager(ObjectCache cache, IChannelFactoryManager channelFactoryManager,
+                             SecurityTokenProvider securityTokenProvider)
         {
-            this._cache = cache;
-            this._channelFactoryManager = channelFactoryManager;
-            this._securityTokenProvider = securityTokenProvider;
+            _cache = cache;
+            _channelFactoryManager = channelFactoryManager;
+            _securityTokenProvider = securityTokenProvider;
         }
 
         /// <summary>
@@ -66,7 +70,9 @@ namespace Seterlund.Wcf.Client
         /// </returns>
         public static T Create<T>() where T : class
         {
-            return (new ClientManager(MemoryCache.Default, new ChannelFactoryManager(), new SecurityTokenProvider())).CreateChannel<T>();
+            return
+                (new ClientManager(MemoryCache.Default, new ChannelFactoryManager(), new SecurityTokenProvider())).
+                    CreateChannel<T>();
         }
 
         /// <summary>
@@ -83,14 +89,18 @@ namespace Seterlund.Wcf.Client
         /// </returns>
         public static T Create<T>(ClientCredentials clientCredentials) where T : class
         {
-            return (new ClientManager(MemoryCache.Default, new ChannelFactoryManager(), new SecurityTokenProvider())).CreateChannel<T>(clientCredentials);
+            return
+                (new ClientManager(MemoryCache.Default, new ChannelFactoryManager(), new SecurityTokenProvider())).
+                    CreateChannel<T>(clientCredentials);
         }
 
         public static T Create<T, TBinding>()
             where T : class
             where TBinding : Binding
         {
-            return (new ClientManager(MemoryCache.Default, new ChannelFactoryManager(), new SecurityTokenProvider())).CreateChannel<T, TBinding>();
+            return
+                (new ClientManager(MemoryCache.Default, new ChannelFactoryManager(), new SecurityTokenProvider())).
+                    CreateChannel<T, TBinding>();
         }
 
 
@@ -135,7 +145,7 @@ namespace Seterlund.Wcf.Client
             var serviceBinding = channelFactory.Endpoint.Binding as WS2007FederationHttpBinding;
             var claimsIdentity = identity as IClaimsIdentity;
             var bootstrapToken = claimsIdentity != null ? claimsIdentity.BootstrapToken : null;
-            return this._securityTokenProvider.IssueToken(serviceBinding, serviceAddress, bootstrapToken);
+            return _securityTokenProvider.IssueToken(serviceBinding, serviceAddress, bootstrapToken);
         }
 
         /// <summary>
@@ -174,7 +184,7 @@ namespace Seterlund.Wcf.Client
         /// <returns>
         /// A new federated channel
         /// </returns>
-        private T CreateFederatedChannel<T>(ChannelFactory<T> channelFactory)
+        protected virtual T CreateFederatedChannel<T>(ChannelFactory<T> channelFactory)
         {
             var token = GetSecurityToken(channelFactory);
             return channelFactory.CreateChannelWithIssuedToken(token);
@@ -192,23 +202,19 @@ namespace Seterlund.Wcf.Client
         /// <returns>
         /// The security token
         /// </returns>
-        private SecurityToken GetSecurityToken<T>(ChannelFactory<T> channelFactory)
+        protected virtual SecurityToken GetSecurityToken<T>(ChannelFactory<T> channelFactory)
         {
             var identity = GetIdentity();
             var cacheKey = GetTokenCacheKey(channelFactory, identity);
-            SecurityToken token;
-            if (this._cache.Contains(cacheKey))
-            {
-                token = this._cache[cacheKey] as SecurityToken;
-            }
-            else
+            var token = _cache.Get(cacheKey) as SecurityToken;
+            if (token == null)
             {
                 token = CreateNewSecurityToken(channelFactory, identity);
-                lock (this._cacheLock)
+                lock (_cacheLock)
                 {
-                    if (!this._cache.Contains(cacheKey))
+                    if (!_cache.Contains(cacheKey))
                     {
-                        this._cache.Add(cacheKey, token, new DateTimeOffset(token.ValidTo));
+                        _cache.Add(cacheKey, token, new DateTimeOffset(token.ValidTo));
                     }
                 }
             }
@@ -227,7 +233,7 @@ namespace Seterlund.Wcf.Client
         /// </returns>
         public T CreateChannel<T>() where T : class
         {
-            var channelFactory = this._channelFactoryManager.GetFactory<T>();
+            var channelFactory = _channelFactoryManager.GetFactory<T>();
             return CreateChannel(channelFactory);
         }
 
@@ -245,7 +251,7 @@ namespace Seterlund.Wcf.Client
         /// </returns>
         public T CreateChannel<T>(ClientCredentials clientCredentials) where T : class
         {
-            var channelFactory = this._channelFactoryManager.GetFactory<T>(clientCredentials);
+            var channelFactory = _channelFactoryManager.GetFactory<T>(clientCredentials);
             return CreateChannel(channelFactory);
         }
 
@@ -261,12 +267,12 @@ namespace Seterlund.Wcf.Client
             where T : class
             where TBinding : Binding
         {
-            var channelFactory = this._channelFactoryManager.GetFactory<T, TBinding>();
+            var channelFactory = _channelFactoryManager.GetFactory<T, TBinding>();
             return CreateChannel(channelFactory);
         }
 
         /// <summary>
-        /// CReate a new service client for specified interces
+        /// Create a new service client for specified interface
         /// </summary>
         /// <param name="channelFactory">
         /// The channel factory to use

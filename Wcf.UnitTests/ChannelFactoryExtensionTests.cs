@@ -1,15 +1,15 @@
 ﻿using System.ServiceModel;
 using System.ServiceModel.Description;
 using Microsoft.IdentityModel.Protocols.WSTrust;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Seterlund.Wcf.Core;
+using NUnit.Framework;
 
 namespace Seterlund.Wcf.UnitTests
 {
-    [TestClass]
+    [TestFixture]
     public class ChannelFactoryExtensionTests
     {
-        [TestMethod]
+        [Test]
         public void IsFederated_BindingIsWS2007FederationHttpBinding_ReturnsTrue()
         {
             // Arrange
@@ -22,7 +22,7 @@ namespace Seterlund.Wcf.UnitTests
             Assert.AreEqual(true, actual);
         }
 
-        [TestMethod]
+        [Test]
         public void IsFederated_BindingIsBasicHttpBinding_ReturnsFalse()
         {
             // Arrange
@@ -35,7 +35,7 @@ namespace Seterlund.Wcf.UnitTests
             Assert.AreEqual(false, actual);
         }
 
-        [TestMethod]
+        [Test]
         public void IsConfiguredAsFederated_ConfiguredIsCalled_ReturnsTrue()
         {
             // Arrange
@@ -49,7 +49,7 @@ namespace Seterlund.Wcf.UnitTests
             Assert.AreEqual(true, actual);
         }
 
-        [TestMethod]
+        [Test]
         public void IsConfiguredAsFederated_ConfiguredIsNotCalled_ReturnsFalse()
         {
             // Arrange
@@ -62,7 +62,7 @@ namespace Seterlund.Wcf.UnitTests
             Assert.AreEqual(false, actual);
         }
 
-        [TestMethod]
+        [Test]
         public void SetClientCredentials_WhenCalled_SetsNewClientCredentials()
         {
             // Arrange
