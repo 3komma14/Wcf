@@ -7,8 +7,9 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Configuration;
 using System.ServiceModel.Description;
 using Microsoft.IdentityModel.Protocols.WSTrust;
+using Seterlund.Wcf.Core;
 
-namespace Seterlund.Wcf
+namespace Seterlund.Wcf.Client
 {
     /// <summary>
     /// Manages creation of channel factories

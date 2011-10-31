@@ -2,6 +2,7 @@
 using System.ServiceModel.Description;
 using Microsoft.IdentityModel.Protocols.WSTrust;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Seterlund.Wcf.Core;
 
 namespace Seterlund.Wcf.UnitTests
 {

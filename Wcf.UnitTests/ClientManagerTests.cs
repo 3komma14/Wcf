@@ -8,6 +8,8 @@ using System.Threading;
 using Microsoft.IdentityModel.Protocols.WSTrust;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rhino.Mocks;
+using Seterlund.Wcf.Client;
+using Seterlund.Wcf.WIF;
 
 namespace Seterlund.Wcf.UnitTests
 {

@@ -3,7 +3,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
 using StructureMap;
 
-namespace Seterlund.Wcf.Server.UoW
+namespace Seterlund.Wcf.Server.UnitOfWork
 {
     class UoWErrorHandler : IErrorHandler
     {

@@ -1,5 +1,4 @@
-﻿using Seterlund.Wcf.Server.IoC;
-using StructureMap.Pipeline;
+﻿using StructureMap.Pipeline;
 
 namespace Seterlund.Wcf.Server.StructureMap
 {

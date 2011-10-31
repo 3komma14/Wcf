@@ -4,7 +4,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
 using StructureMap;
 
-namespace Seterlund.Wcf.Server.IoC
+namespace Seterlund.Wcf.Server.InversionOfControl
 {
     public class IoCInstanceProvider : IInstanceProvider
     {

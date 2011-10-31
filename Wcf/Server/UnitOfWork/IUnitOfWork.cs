@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Seterlund.Wcf.Server.UoW
+﻿namespace Seterlund.Wcf.Server.UnitOfWork
 {
     interface IUnitOfWork
     {

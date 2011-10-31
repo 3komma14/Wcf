@@ -1,4 +1,4 @@
-﻿using Seterlund.Wcf.Server.IoC;
+﻿using Seterlund.Wcf.Server.InversionOfControl;
 using StructureMap.Pipeline;
 
 namespace Seterlund.Wcf.Server.StructureMap

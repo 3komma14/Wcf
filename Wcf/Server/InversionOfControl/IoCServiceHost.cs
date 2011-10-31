@@ -2,7 +2,7 @@
 using System.ServiceModel;
 using StructureMap;
 
-namespace Seterlund.Wcf.Server.IoC
+namespace Seterlund.Wcf.Server.InversionOfControl
 {
     public class IoCServiceHost : ServiceHost
     {

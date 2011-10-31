@@ -2,7 +2,7 @@
 using System.ServiceModel.Description;
 using Microsoft.IdentityModel.Protocols.WSTrust;
 
-namespace Seterlund.Wcf
+namespace Seterlund.Wcf.Core
 {
     /// <summary>
     /// Extension methods to ChannelFactory

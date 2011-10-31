@@ -49,24 +49,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChannelFactoryExtensions.cs" />
-    <Compile Include="ChannelFactoryManager.cs" />
-    <Compile Include="ClientManager.cs" />
-    <Compile Include="IChannelFactoryManager.cs" />
+    <Compile Include="Core\ChannelFactoryExtensions.cs" />
+    <Compile Include="Client\ChannelFactoryManager.cs" />
+    <Compile Include="Client\ClientManager.cs" />
+    <Compile Include="Client\IChannelFactoryManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SecurityTokenProvider.cs" />
+    <Compile Include="WIF\SecurityTokenProvider.cs" />
     <Compile Include="Server\StructureMap\HybridInstanceContextLifecycle.cs" />
     <Compile Include="Server\StructureMap\InstanceContextLifecycle.cs" />
     <Compile Include="Server\StructureMap\InstanceContextLifecycleBase.cs" />
-    <Compile Include="Server\IoC\IoCContextCacheExtension.cs" />
-    <Compile Include="Server\IoC\IoCContextCacheInitializer.cs" />
-    <Compile Include="Server\IoC\IoCInstanceProvider.cs" />
-    <Compile Include="Server\IoC\IoCServiceBehavior.cs" />
-    <Compile Include="Server\IoC\IoCServiceHost.cs" />
-    <Compile Include="Server\IoC\IoCServiceHostFactory.cs" />
-    <Compile Include="Server\UoW\IUnitOfWork.cs" />
-    <Compile Include="Server\UoW\UoWErrorHandler.cs" />
-    <Compile Include="Server\UoW\UoWMessageInspector.cs" />
+    <Compile Include="Server\InversionOfControl\IoCContextCacheExtension.cs" />
+    <Compile Include="Server\InversionOfControl\IoCContextCacheInitializer.cs" />
+    <Compile Include="Server\InversionOfControl\IoCInstanceProvider.cs" />
+    <Compile Include="Server\InversionOfControl\IoCServiceBehavior.cs" />
+    <Compile Include="Server\InversionOfControl\IoCServiceHost.cs" />
+    <Compile Include="Server\InversionOfControl\IoCServiceHostFactory.cs" />
+    <Compile Include="Server\UnitOfWork\IUnitOfWork.cs" />
+    <Compile Include="Server\UnitOfWork\UoWErrorHandler.cs" />
+    <Compile Include="Server\UnitOfWork\UoWMessageInspector.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

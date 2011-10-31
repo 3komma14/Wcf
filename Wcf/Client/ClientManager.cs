@@ -9,8 +9,10 @@ using System.ServiceModel.Description;
 using System.Threading;
 using Microsoft.IdentityModel.Claims;
 using Microsoft.IdentityModel.Protocols.WSTrust;
+using Seterlund.Wcf.Core;
+using Seterlund.Wcf.WIF;
 
-namespace Seterlund.Wcf
+namespace Seterlund.Wcf.Client
 {
     /// <summary>
     /// Class for creating service clients

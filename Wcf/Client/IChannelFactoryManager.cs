@@ -2,7 +2,7 @@
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 
-namespace Seterlund.Wcf
+namespace Seterlund.Wcf.Client
 {
     public interface IChannelFactoryManager
     {

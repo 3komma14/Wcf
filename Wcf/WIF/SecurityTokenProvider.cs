@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Protocols.WSTrust;
 using Microsoft.IdentityModel.SecurityTokenService;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Seterlund.Wcf
+namespace Seterlund.Wcf.WIF
 {
     /// <summary>
     /// Class for geting security tokens

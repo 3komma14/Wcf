@@ -4,6 +4,7 @@ using System.ServiceModel;
 using Microsoft.IdentityModel.Protocols.WSTrust;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rhino.Mocks;
+using Seterlund.Wcf.WIF;
 
 namespace Seterlund.Wcf.UnitTests
 {
@@ -47,7 +48,7 @@ namespace Seterlund.Wcf.UnitTests
             var returnToken = MockRepository.GenerateStub<SecurityToken>();
             var mockRepository = new MockRepository();
             var securityTokenProvider = mockRepository.PartialMock<SecurityTokenProvider>();
-            securityTokenProvider.Stub(x => x.IssueToken(Arg<IWSTrustChannelContract>.Is.Anything, Arg<string>.Is.Anything, Arg<SecurityToken>.Is.Anything)).Return(returnToken);
+            securityTokenProvider.Stub(x => x.IssueToken(Arg<IWSTrustChannelContract>.Is.Anything, Arg<string>.Is.Anything, Arg<SecurityToken>.Is.Anything, Arg<SecurityToken>.Is.Anything)).Return(returnToken);
             securityTokenProvider.Replay();
 
             var binding = MockRepository.GenerateStub<WS2007FederationHttpBinding>();
@@ -64,7 +65,7 @@ namespace Seterlund.Wcf.UnitTests
 
             // Assert
             securityTokenProvider.AssertWasCalled(
-                x => x.IssueToken(Arg<IWSTrustChannelContract>.Is.Anything, Arg<string>.Is.Anything, Arg<SecurityToken>.Is.Anything));
+                x => x.IssueToken(Arg<IWSTrustChannelContract>.Is.Anything, Arg<string>.Is.Anything, Arg<SecurityToken>.Is.Anything, Arg<SecurityToken>.Is.Anything));
             Assert.AreEqual(returnToken, actual);
         }
 
