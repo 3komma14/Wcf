@@ -1,14 +1,9 @@
-﻿using System;
-using System.IdentityModel.Tokens;
-using System.Runtime.Caching;
-using System.Security;
-using System.Security.Principal;
+﻿using System.Runtime.Caching;
 using System.ServiceModel;
 using System.ServiceModel.Description;
-using System.Threading;
-using Microsoft.IdentityModel.Protocols.WSTrust;
 using NUnit.Framework;
 using Rhino.Mocks;
+using Seterlund.Wcf.Client;
 
 namespace Seterlund.Wcf.UnitTests
 {
