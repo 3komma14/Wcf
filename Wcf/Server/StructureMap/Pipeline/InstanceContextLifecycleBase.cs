@@ -1,7 +1,7 @@
 ﻿using System;
 using StructureMap.Pipeline;
 
-namespace Seterlund.Wcf.Server.StructureMap
+namespace Seterlund.Wcf.Server.StructureMap.Pipeline
 {
     public abstract class InstanceContextLifecycleBase<TWcf, TNonWcf> : ILifecycle
         where TWcf : ILifecycle, new()

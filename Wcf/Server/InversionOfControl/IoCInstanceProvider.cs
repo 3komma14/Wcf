@@ -2,18 +2,18 @@
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
-using StructureMap;
+using Seterlund.Wcf.Core;
 
 namespace Seterlund.Wcf.Server.InversionOfControl
 {
     public class IoCInstanceProvider : IInstanceProvider
     {
-        private readonly IContainer _container;
+        private readonly IDependencyResolver _resolver;
         private readonly Type _serviceType;
 
-        public IoCInstanceProvider(IContainer container, Type serviceType)
+        public IoCInstanceProvider(IDependencyResolver resolver, Type serviceType)
         {
-            _container = container;
+            _resolver = resolver;
             _serviceType = serviceType;
         }
 
@@ -24,7 +24,7 @@ namespace Seterlund.Wcf.Server.InversionOfControl
 
         public object GetInstance(InstanceContext instanceContext, Message message)
         {
-            return _container.GetInstance(_serviceType);
+            return _resolver.Get(_serviceType);
         }
 
         public void ReleaseInstance(InstanceContext instanceContext, object instance)

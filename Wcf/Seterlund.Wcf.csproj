@@ -51,19 +51,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client\ClientConfiguration.cs" />
     <Compile Include="Core\ChannelFactoryExtensions.cs" />
     <Compile Include="Client\ChannelFactoryManager.cs" />
     <Compile Include="Client\ClientManager.cs" />
     <Compile Include="Client\IChannelFactoryManager.cs" />
+    <Compile Include="Core\IDependencyResolver.cs" />
     <Compile Include="Core\ServiceHostExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Server\InstanceContextInitializer.cs" />
+    <Compile Include="Server\StructureMap\Pipeline\InstanceContextCacheExtension.cs" />
+    <Compile Include="Server\StructureMap\Pipeline\OperationContextCacheExtension.cs" />
+    <Compile Include="Server\StructureMap\StructureMapResolver.cs" />
+    <Compile Include="Server\UnitOfWork\InstanceContextUoWExtension.cs" />
     <Compile Include="WIF\ChannelFactoryExtensions.cs" />
     <Compile Include="WIF\SecurityTokenProvider.cs" />
-    <Compile Include="Server\StructureMap\HybridInstanceContextLifecycle.cs" />
-    <Compile Include="Server\StructureMap\InstanceContextLifecycle.cs" />
-    <Compile Include="Server\StructureMap\InstanceContextLifecycleBase.cs" />
-    <Compile Include="Server\InversionOfControl\IoCContextCacheExtension.cs" />
-    <Compile Include="Server\InversionOfControl\IoCContextCacheInitializer.cs" />
+    <Compile Include="Server\StructureMap\Pipeline\HybridInstanceContextLifecycle.cs" />
+    <Compile Include="Server\StructureMap\Pipeline\InstanceContextLifecycle.cs" />
+    <Compile Include="Server\StructureMap\Pipeline\InstanceContextLifecycleBase.cs" />
+    <Compile Include="Server\StructureMap\Pipeline\InstanceContextCacheInitializer.cs" />
     <Compile Include="Server\InversionOfControl\IoCInstanceProvider.cs" />
     <Compile Include="Server\InversionOfControl\IoCServiceBehavior.cs" />
     <Compile Include="Server\InversionOfControl\IoCServiceHost.cs" />

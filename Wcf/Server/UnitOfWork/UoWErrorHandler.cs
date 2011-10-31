@@ -1,22 +1,22 @@
 ﻿using System;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
-using StructureMap;
+using Seterlund.Wcf.Core;
 
 namespace Seterlund.Wcf.Server.UnitOfWork
 {
     class UoWErrorHandler : IErrorHandler
     {
-        private readonly IContainer _container;
+        private readonly IDependencyResolver _resolver;
 
-        public UoWErrorHandler(IContainer container)
+        public UoWErrorHandler(IDependencyResolver resolver)
         {
-            _container = container;
+            _resolver = resolver;
         }
 
         public void ProvideFault(Exception error, MessageVersion version, ref Message fault)
         {
-            var uow = _container.GetInstance<IUnitOfWork>();
+            var uow = _resolver.Get<IUnitOfWork>();
             uow.Rollback();
             uow.Dispose();
         }

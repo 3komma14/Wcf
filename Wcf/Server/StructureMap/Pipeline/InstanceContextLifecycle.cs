@@ -1,7 +1,6 @@
-﻿using Seterlund.Wcf.Server.InversionOfControl;
-using StructureMap.Pipeline;
+﻿using StructureMap.Pipeline;
 
-namespace Seterlund.Wcf.Server.StructureMap
+namespace Seterlund.Wcf.Server.StructureMap.Pipeline
 {
     public class InstanceContextLifecycle : ILifecycle
     {
@@ -12,7 +11,7 @@ namespace Seterlund.Wcf.Server.StructureMap
 
         public IObjectCache FindCache()
         {
-            return IoCContextCacheExtension.Current.Cache;
+            return InstanceContextCacheExtension.Current.Cache;
         }
 
         public string Scope
@@ -22,7 +21,7 @@ namespace Seterlund.Wcf.Server.StructureMap
 
         public static bool HasContext()
         {
-            return (IoCContextCacheExtension.Current != null);
+            return (InstanceContextCacheExtension.Current != null);
         }
 
     }

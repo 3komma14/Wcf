@@ -1,17 +1,17 @@
 ﻿using System.ServiceModel;
 using StructureMap.Pipeline;
 
-namespace Seterlund.Wcf.Server.InversionOfControl
+namespace Seterlund.Wcf.Server.StructureMap.Pipeline
 {
-    public class IoCContextCacheExtension : IExtension<InstanceContext>
+    public class InstanceContextCacheExtension : IExtension<InstanceContext>
     {
         public IObjectCache Cache { get; private set; }
 
-        public static IoCContextCacheExtension Current
+        public static InstanceContextCacheExtension Current
         {
             get
             {
-                return OperationContext.Current != null ? OperationContext.Current.InstanceContext.Extensions.Find<IoCContextCacheExtension>() : null;
+                return OperationContext.Current != null ? OperationContext.Current.InstanceContext.Extensions.Find<InstanceContextCacheExtension>() : null;
             }
         }
 

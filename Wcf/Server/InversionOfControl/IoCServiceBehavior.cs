@@ -3,17 +3,19 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
-using StructureMap;
+using Seterlund.Wcf.Core;
+using Seterlund.Wcf.Server.StructureMap;
+using Seterlund.Wcf.Server.StructureMap.Pipeline;
 
 namespace Seterlund.Wcf.Server.InversionOfControl
 {
     public class IoCServiceBehavior : IServiceBehavior
     {
-        private readonly IContainer _container;
+        private readonly IDependencyResolver _resolver;
 
-        public IoCServiceBehavior(IContainer container)
+        public IoCServiceBehavior(IDependencyResolver resolver)
         {
-            _container = container;
+            _resolver = resolver;
         }
 
         public void ApplyDispatchBehavior(ServiceDescription serviceDescription, ServiceHostBase serviceHostBase)
@@ -26,24 +28,24 @@ namespace Seterlund.Wcf.Server.InversionOfControl
                 {
                     // Add instance provider
                     endpointDispatcher.DispatchRuntime.InstanceProvider =
-                        new IoCInstanceProvider(_container, serviceDescription.ServiceType);
+                        new IoCInstanceProvider(_resolver, serviceDescription.ServiceType);
 
                     // Add instance context initializers
-                    endpointDispatcher.DispatchRuntime.InstanceContextInitializers.Add(new IoCContextCacheInitializer());
-                    foreach (var initializer in _container.GetAllInstances<IInstanceContextInitializer>())
+                    endpointDispatcher.DispatchRuntime.InstanceContextInitializers.Add(new InstanceContextCacheInitializer());
+                    foreach (var initializer in _resolver.GetAll<IInstanceContextInitializer>())
                     {
                         endpointDispatcher.DispatchRuntime.InstanceContextInitializers.Add(initializer);
                     }
 
                     // Add message inspectors
-                    foreach (var inspector in _container.GetAllInstances<IDispatchMessageInspector>())
+                    foreach (var inspector in _resolver.GetAll<IDispatchMessageInspector>())
                     {
                         endpointDispatcher.DispatchRuntime.MessageInspectors.Add(inspector);
                     }
                 }
 
                 // Add errorhandlers
-                foreach (var errorHandler in _container.GetAllInstances<IErrorHandler>())
+                foreach (var errorHandler in _resolver.GetAll<IErrorHandler>())
                 {
                     cd.ErrorHandlers.Add(errorHandler);
                 }

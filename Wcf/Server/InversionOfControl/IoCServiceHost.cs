@@ -1,22 +1,22 @@
 ﻿using System;
 using System.ServiceModel;
-using StructureMap;
+using Seterlund.Wcf.Core;
 
 namespace Seterlund.Wcf.Server.InversionOfControl
 {
     public class IoCServiceHost : ServiceHost
     {
-        protected readonly IContainer _container;
+        protected readonly IDependencyResolver Resolver;
 
-        public IoCServiceHost(IContainer container, Type serviceType, params Uri[] baseAddresses)
+        public IoCServiceHost(IDependencyResolver resolver, Type serviceType, params Uri[] baseAddresses)
             : base(serviceType, baseAddresses)
         {
-            _container = container;
+            Resolver = resolver;
         }
 
         protected override void OnOpening()
         {
-            Description.Behaviors.Add(new IoCServiceBehavior(_container));
+            Description.Behaviors.Add(new IoCServiceBehavior(Resolver));
             base.OnOpening();
         }
     }
